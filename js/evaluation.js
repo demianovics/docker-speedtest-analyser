@@ -20,7 +20,8 @@ jQuery(document).ready(function(){
                 fill: false,
                 backgroundColor: colors.black,
                 borderColor: colors.black,
-                tension: 0
+                tension: 0,
+                spanGaps: false
             },
             {
                 label: appConfig.labels.upload,
@@ -28,7 +29,8 @@ jQuery(document).ready(function(){
                 fill: false,
                 backgroundColor: colors.green,
                 borderColor: colors.green,
-                tension: 0
+                tension: 0,
+                spanGaps: false
             },
             {
                 label: appConfig.labels.download,
@@ -36,7 +38,8 @@ jQuery(document).ready(function(){
                 fill: true,
                 backgroundColor: colors.orange,
                 borderColor: colors.orange,
-                tension: 0
+                tension: 0,
+                spanGaps: false
             }
         ]
     };
@@ -47,6 +50,14 @@ jQuery(document).ready(function(){
         type: "line",
         data: data,
         options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'hour'
+                    }
+                }
+            },
             tooltips: {
                 mode: 'index',
                 intersect: false,
@@ -121,6 +132,7 @@ jQuery(document).ready(function(){
          * @param measureRow
          */
         parseManager.addRow = function(measureRow){
+            console.log(measureRow)
             let chart = parseManager._chart;
             let chartData = chart.config.data;
             chartData.labels.push(this.getDateFromData(measureRow));

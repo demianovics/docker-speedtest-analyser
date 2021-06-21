@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM --platform=$BUILDPLATFORM node:lts-alpine AS build
 
 # greet me :)
 MAINTAINER Tobias Rös - <roes@amicaldo.de>
@@ -7,8 +7,6 @@ MAINTAINER Tobias Rös - <roes@amicaldo.de>
 RUN apk update && apk add \
   bash \
   git \
-  nodejs \
-  nodejs-npm \
   nginx \
   nginx-mod-http-lua \
   python3 \
@@ -37,7 +35,7 @@ ADD config/nginxEnv.conf /etc/nginx/modules/nginxEnv.conf
 ADD ./ /var/www/html/
 
 # install bower dependencies
-RUN npm install -g yarn && cd /var/www/html/ && yarn install
+RUN cd /var/www/html/ && npm install
 
 EXPOSE 80
 EXPOSE 443

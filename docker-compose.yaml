@@ -1,7 +1,7 @@
 version: '3'
 services:
   speedtest:
-    container_name: speedtest
+    container_name: docker-speedtest-analyser
     build: .
     restart: unless-stopped
     network_mode: bridge
@@ -11,4 +11,4 @@ services:
       - 8080:80
       - 4343:443
     environment:
-      - CRONJOB_ITERATION=15
+      - CRONJOB_ITERATION=10

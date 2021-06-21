@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 echo "Starting run.sh"
 
 cat /var/www/html/config/crontab.default > /var/www/html/config/crontab
