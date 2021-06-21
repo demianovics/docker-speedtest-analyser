@@ -35,7 +35,7 @@ ADD config/nginxEnv.conf /etc/nginx/modules/nginxEnv.conf
 ADD ./ /var/www/html/
 
 # install bower dependencies
-RUN cd /var/www/html/ && npm install
+RUN npm install -g yarn && cd /var/www/html/ && yarn install
 
 EXPOSE 80
 EXPOSE 443
