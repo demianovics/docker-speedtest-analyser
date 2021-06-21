@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM node:lts-alpine AS build
+FROM node:lts-alpine AS build
 
 # greet me :)
 MAINTAINER Tobias Rös - <roes@amicaldo.de>
