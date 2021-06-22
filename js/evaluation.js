@@ -99,6 +99,7 @@ jQuery(document).ready(function(){
 
             Papa.parse("data/result.csv", {
                 download: true,
+                skipEmptyLines: true,
                 step: function(row) { //using stream to allow huge file progressing
                     parseManager.i++;
                     let dataArr = row.data;
@@ -110,11 +111,9 @@ jQuery(document).ready(function(){
                         for (i = 0; i < dataArr.length; i++) {
                             measureRow[parseManager.header[i]] = dataArr[i];
                         }
-                        measureRow['timestamp_s'] = parseInt(measureRow['timestamp'] / 1000); //from ms timestamp to secounds
-                        measureRow['timestamp'] = parseInt(measureRow['timestamp']); //from save ms timestamp
 
                         if (!!parseManager._startDate && !!parseManager._endDate){
-                            if (measureRow['timestamp_s'] < parseManager._startDate.unix() || measureRow['timestamp_s'] > parseManager._endDate.unix()){
+                            if (new Date(measureRow['datetime']) < parseManager._startDate._d || new Date(measureRow['datetime']) > parseManager._endDate._d){
                                 //not in filter
                                 return;
                             }
@@ -132,7 +131,6 @@ jQuery(document).ready(function(){
          * @param measureRow
          */
         parseManager.addRow = function(measureRow){
-            console.log(measureRow)
             let chart = parseManager._chart;
             let chartData = chart.config.data;
             chartData.labels.push(this.getDateFromData(measureRow));
@@ -199,7 +197,7 @@ jQuery(document).ready(function(){
 
 
         parseManager.getDateFromData = function(measureRow){
-            return moment(new Date(measureRow['timestamp'])).format('L - LT')
+            return moment(new Date(measureRow['datetime'])).format('L - LT')
         };
 
 

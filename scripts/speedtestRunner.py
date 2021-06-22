@@ -9,54 +9,73 @@ import csv
 import datetime
 import time
 import sys
+import traceback
 from speedtest import Speedtest
 from time import sleep
 
 #static values
-CSV_FIELDNAMES=["timestamp", "ping", "download", "upload"]
+CSV_FIELDNAMES=["datetime", "ping", "download", "upload"]
 FILEPATH = os.path.dirname(os.path.abspath(__file__)) + '/../data/result.csv'
 
 def runSpeedtest():
-        #run speedtest-cli
-        print('--- running speedtest ---')
-        timestamp = round(time.time() * 1000, 3)
-        print("Timestamp: %s" %(timestamp))
-
-        print('Sleeping for 20 seconds')
-        sleep(20)
-
-        #execute speedtest
+        #execute speedtest-cli
         servers = []
         threads = None
 
-        try:
-                s = Speedtest()
-                #s.get_servers(servers)
-                #s.get_best_server()
-                s.download(threads=threads)
-                s.upload(threads=threads, pre_allocate=False)
-                result = s.results.dict()
+        s = Speedtest()
+        s.get_servers(servers)
+        s.get_best_server()
+        s.download(threads=threads)
+        s.upload(threads=threads, pre_allocate=False)
+        result = s.results.dict()
 
-                #collect speedtest data
-                ping = round(result['ping'], 2)
-                download = round(result['download'] / 1000 / 1000, 2)
-                upload = round(result['upload'] / 1000 / 1000, 2)
+        #collect speedtest data
+        ping = round(result['ping'], 2)
+        download = round(result['download'] / 1000 / 1000, 2)
+        upload = round(result['upload'] / 1000 / 1000, 2)
 
-                #print testdata
-                print('--- Result ---')
-                print("Ping: %d [ms]" %(ping))
-                print("Download: %d [Mbit/s]" %(download))
-                print("Upload: %d [Mbit/s]" %(upload))
+        return ping, download, upload        
 
-        except:
-                e = sys.exc_info()[0]
-                print(e)
-                ping = 'null'
-                download = 'null'
-                upload = 'null'
-                
+if __name__ == '__main__':
+        print('--- running speedtest ---')
+        dt = time.strftime('%Y-%m-%d %H:%M')
+        print("datetime: %s" %(dt))
+
+        tries = 0
+        run = True
+        while run:
+                try:
+                        tries += 1
+                        print("attempt: %d" %(tries))
+                        ping, download, upload = runSpeedtest()
+
+                        #print testdata
+                        print('--- result ---')
+                        print("ping: %d [ms]" %(ping))
+                        print("download: %d [Mbit/s]" %(download))
+                        print("upload: %d [Mbit/s]" %(upload))
+
+                        #stop trying
+                        run = False
+                except:
+                        #print error
+                        tb = traceback.format_exc()
+                        print(tb)
+
+                        #stop after 2 tries
+                        if tries > 2:
+                                run = False
+                                print('--- final fail ---')
+                                ping = 'null'
+                                download = 'null'
+                                upload = 'null'
+                        else:
+                                print('--- fail ---')
+                                print('sleeping for 20 seconds before next attempt')
+                                sleep(20)
+
         csv_data_dict = {
-                CSV_FIELDNAMES[0]: timestamp,
+                CSV_FIELDNAMES[0]: dt,
                 CSV_FIELDNAMES[1]: ping,
                 CSV_FIELDNAMES[2]: download,
                 CSV_FIELDNAMES[3]: upload}
@@ -68,11 +87,6 @@ def runSpeedtest():
                 csv_writer = csv.DictWriter(f, delimiter=',', lineterminator='\n', fieldnames=CSV_FIELDNAMES)
                 if isFileEmpty:
                         csv_writer.writeheader()
-
                 csv_writer.writerow(csv_data_dict)
 
-        
-
-if __name__ == '__main__':
-        runSpeedtest()
-        print('speedtest complete')
+        print('--- speedtest complete ---')
