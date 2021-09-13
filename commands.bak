@@ -1,0 +1,31 @@
+
+docker buildx ls
+docker buildx create --name mybuilder
+docker buildx use mybuilder
+docker buildx inspect --bootstrap
+docker buildx build --platform linux/arm/v6,linux/arm/v7 -t demianovics/docker-speedtest-analyser:latest --push .
+
+docker exec -it speedtest bash
+docker container logs speedtest
+
+docker image pull demianovics/docker-speedtest-analyser:latest
+docker stop speedtest
+docker rm speedtest
+docker run -d -v /home/pi/docker-speedtest-analyser/data:/var/www/html/data --env CRONJOB_ITERATION=30 -p 80:80 --name speedtest demianovics/docker-speedtest-analyser:latest
+docker update --restart=always speedtest
+
+
+docker buildx build --platform linux/amd64,linux/arm/v6,linux/arm/v7 -t demianovics/docker-speedtest-analyser:latest --push .
+
+
+
+
+You can run this
+docker rm $(docker ps -aq)
+to remove all containers. And then
+
+docker rmi $(docker images -a | grep "^<none>" | awk '{print $3}')
+to remove all empty/untagged images. And then try again.
+
+OR
+docker rmi $(docker images -q)
